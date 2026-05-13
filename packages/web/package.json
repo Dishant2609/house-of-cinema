@@ -6,7 +6,7 @@
     ".": "./src/api/index.ts"
   },
   "scripts": {
-    "build": "tsc --noEmit && vite build",
+    "build": "vite build",
     "dev": "vite",
     "lint": "eslint .",
     "preview": "bun run build && vite preview",

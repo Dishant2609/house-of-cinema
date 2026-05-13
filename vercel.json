@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd packages/web && npm install && npm run build",
+  "buildCommand": "npm install --prefix packages/web && npm run build --prefix packages/web",
   "outputDirectory": "packages/web/dist",
   "framework": null,
   "functions": {
