@@ -4,7 +4,7 @@
   publish = "packages/web/dist"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
   BUN_VERSION = "1.3.5"
 
 [[redirects]]
