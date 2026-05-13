@@ -5,7 +5,7 @@
   "installCommand": "bun install",
   "framework": null,
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" },
+    { "source": "/api/(.*)", "destination": "/api/proxy" },
     { "source": "/((?!api).*)", "destination": "/index.html" }
   ]
 }
