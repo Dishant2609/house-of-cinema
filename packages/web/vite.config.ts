@@ -5,19 +5,24 @@ import path from "path";
 
 const root = path.resolve(__dirname, "../..");
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(async ({ mode }) => {
 	const env = loadEnv(mode, root, '');
 	const localEnv = loadEnv(mode, __dirname, '');
 	Object.assign(process.env, env, localEnv);
+
+	const isDev = mode === 'development';
+	const plugins: any[] = [react(), tailwind()];
+
+	if (isDev) {
+		const { default: honoDevPlugin } = await import('./vite/plugins/hono-dev-plugin');
+		plugins.unshift(honoDevPlugin());
+	}
 
 	return {
 		define: {
 			'import.meta.env.VITE_TMDB_API_KEY': JSON.stringify(localEnv.VITE_TMDB_API_KEY || env.VITE_TMDB_API_KEY || 'd95d937e9a07bd2f0cfa6816b9f2d4fd'),
 		},
-		plugins: [
-			react(),
-			tailwind(),
-		],
+		plugins,
 		resolve: {
 			alias: {
 				"@": path.resolve(__dirname, "./src/web"),
