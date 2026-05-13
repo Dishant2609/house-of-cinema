@@ -2,21 +2,36 @@ const TMDB_KEY = process.env.VITE_TMDB_API_KEY || 'd95d937e9a07bd2f0cfa6816b9f2d
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 const IMAGE_BASE = 'https://image.tmdb.org/t/p';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+
 export const handler = async (event) => {
-  const path = event.path.replace('/.netlify/functions/api', '');
-  const qs = event.queryStringParameters || {};
-
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  };
-
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers: corsHeaders, body: '' };
   }
 
+  // Strip any leading prefix — normalize to just the meaningful path
+  // event.path could be: /api/tmdb/... or /tmdb/... or /.netlify/functions/api/tmdb/...
+  let path = event.path || '';
+  // Remove known prefixes
+  path = path.replace(/^\/.netlify\/functions\/api/, '');
+  path = path.replace(/^\/api/, '');
+
+  const qs = event.queryStringParameters || {};
+
   try {
-    // Image proxy
+    // Debug endpoint
+    if (path === '/ping' || path === '') {
+      return {
+        statusCode: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pong: true, rawPath: event.path, normalizedPath: path }),
+      };
+    }
+
+    // Image proxy: /img/w500/...
     if (path.startsWith('/img/')) {
       const imgPath = path.replace('/img', '');
       const url = `${IMAGE_BASE}${imgPath}`;
@@ -35,42 +50,31 @@ export const handler = async (event) => {
       };
     }
 
-    // TMDB proxy
-    if (path.startsWith('/tmdb/') || path.startsWith('/movies/') || path.startsWith('/search') || path.startsWith('/person')) {
-      let tmdbPath = path.startsWith('/tmdb/') ? path.replace('/tmdb', '') : path;
-      const url = new URL(`${TMDB_BASE}${tmdbPath}`);
-      url.searchParams.set('api_key', TMDB_KEY);
-      Object.entries(qs).forEach(([k, v]) => {
-        if (k !== 'api_key') url.searchParams.set(k, v);
-      });
-      const res = await fetch(url.toString());
-      const data = await res.json();
-      return {
-        statusCode: res.status,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      };
+    // TMDB proxy: /tmdb/... → strip /tmdb prefix and forward to TMDB
+    let tmdbPath = path;
+    if (tmdbPath.startsWith('/tmdb')) {
+      tmdbPath = tmdbPath.replace('/tmdb', '');
     }
 
-    // Ping
-    if (path === '/ping') {
-      return {
-        statusCode: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: `Pong! ${Date.now()}` }),
-      };
-    }
+    const url = new URL(`${TMDB_BASE}${tmdbPath}`);
+    url.searchParams.set('api_key', TMDB_KEY);
+    Object.entries(qs).forEach(([k, v]) => {
+      if (k !== 'api_key') url.searchParams.set(k, v);
+    });
 
+    const res = await fetch(url.toString());
+    const data = await res.json();
     return {
-      statusCode: 404,
+      statusCode: res.status,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Not found' }),
+      body: JSON.stringify(data),
     };
+
   } catch (err) {
     return {
       statusCode: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: err.message }),
+      body: JSON.stringify({ error: err.message, path, rawPath: event.path }),
     };
   }
 };
