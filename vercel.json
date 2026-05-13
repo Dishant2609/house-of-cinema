@@ -1,7 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "npm install --prefix packages/web && npm run build --prefix packages/web",
+  "buildCommand": "cd packages/web && bun install && bun run build",
   "outputDirectory": "packages/web/dist",
+  "installCommand": "bun install",
   "framework": null,
   "functions": {
     "api/index.ts": {
