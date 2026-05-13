@@ -4,11 +4,6 @@
   "outputDirectory": "packages/web/dist",
   "installCommand": "bun install",
   "framework": null,
-  "functions": {
-    "api/index.ts": {
-      "runtime": "edge"
-    }
-  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index" },
     { "source": "/((?!api).*)", "destination": "/index.html" }
