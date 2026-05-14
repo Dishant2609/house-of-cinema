@@ -1,8 +1,5 @@
 # 🎬 House of Cinema
 
-Live Demo
-house-of-cinema.vercel.app
-
 A cinematic movie & TV discovery app built with React, Vite, and TMDB API.
 
 ## Features
@@ -22,12 +19,4 @@ A cinematic movie & TV discovery app built with React, Vite, and TMDB API.
 - **Routing** — Wouter
 - **API** — TMDB (via edge function proxy)
 - **Deployment** — Vercel
-
-## Getting Started
-
-```bash
-bun install
-bun run dev
-```
-
 
