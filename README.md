@@ -25,3 +25,7 @@ A cinematic movie & TV discovery app built with React, Vite, and TMDB API.
 ```bash
 bun install
 bun run dev
+
+
+Live Demo
+house-of-cinema.vercel.app
